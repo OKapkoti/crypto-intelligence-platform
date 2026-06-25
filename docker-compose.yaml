@@ -2,18 +2,47 @@ services:
 
   postgres:
     image: postgres:13
+    container_name: postgres
+   
 
     environment:
       POSTGRES_USER: airflow
       POSTGRES_PASSWORD: airflow
       POSTGRES_DB: airflow
 
-  airflow-init:
-    image: apache/airflow:2.9.3
+    volumes:
+      - postgres-db-volume:/var/lib/postgresql/data
 
+  spark:
+
+    build:
+      context: .
+      dockerfile: Dockerfile.spark
+
+    image: om-spark:2.0
+    
+    container_name: spark
+
+    command: tail -f /dev/null
+
+    volumes:
+      - ./src:/opt/spark-apps
+      - C:/Users/omkap/.aws:/home/spark/.aws:ro
+
+    environment:
+      AWS_PROFILE: crypto-project
+
+  airflow-init:
+
+    image: apache/airflow:2.9.3
+    
+
+    container_name: airflow-init
+    
     depends_on:
       - postgres
-
+    env_file:
+    - .env
     environment:
       AIRFLOW__DATABASE__SQL_ALCHEMY_CONN: postgresql+psycopg2://airflow:airflow@postgres/airflow
       AIRFLOW__CORE__EXECUTOR: LocalExecutor
@@ -34,16 +63,23 @@ services:
       - ./airflow/dags:/opt/airflow/dags
       - ./src:/opt/airflow/src
       - C:/Users/omkap/.aws:/home/airflow/.aws:ro
+      - /var/run/docker.sock:/var/run/docker.sock
 
   airflow-webserver:
+
     image: apache/airflow:2.9.3
+    
+    container_name: airflow-webserver
+
 
     depends_on:
       - postgres
+      - spark
 
     ports:
       - "8080:8080"
-
+    env_file:
+    - .env
     environment:
       AIRFLOW__DATABASE__SQL_ALCHEMY_CONN: postgresql+psycopg2://airflow:airflow@postgres/airflow
       AIRFLOW__CORE__EXECUTOR: LocalExecutor
@@ -54,13 +90,19 @@ services:
       - ./airflow/dags:/opt/airflow/dags
       - ./src:/opt/airflow/src
       - C:/Users/omkap/.aws:/home/airflow/.aws:ro
+      - /var/run/docker.sock:/var/run/docker.sock
 
   airflow-scheduler:
+
     image: apache/airflow:2.9.3
+    
+    container_name: airflow-scheduler
 
     depends_on:
       - postgres
-
+      - spark
+    env_file:
+    - .env
     environment:
       AIRFLOW__DATABASE__SQL_ALCHEMY_CONN: postgresql+psycopg2://airflow:airflow@postgres/airflow
       AIRFLOW__CORE__EXECUTOR: LocalExecutor
@@ -71,4 +113,7 @@ services:
       - ./airflow/dags:/opt/airflow/dags
       - ./src:/opt/airflow/src
       - C:/Users/omkap/.aws:/home/airflow/.aws:ro
+      - /var/run/docker.sock:/var/run/docker.sock
 
+volumes:
+  postgres-db-volume:

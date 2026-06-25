@@ -4,7 +4,9 @@ from pyspark.sql.functions import (
     to_timestamp,
     year,
     month,
-    dayofmonth
+    dayofmonth,
+    hour,
+    current_timestamp
 )
 
 import boto3
@@ -124,16 +126,24 @@ def main():
             to_timestamp("timestamp")
         )
         .withColumn(
+            "run_timestamp",
+            current_timestamp()
+        )
+        .withColumn(
             "year",
-            year("event_timestamp")
+            year("run_timestamp")
         )
         .withColumn(
             "month",
-            month("event_timestamp")
+            month("run_timestamp")
         )
         .withColumn(
             "day",
-            dayofmonth("event_timestamp")
+            dayofmonth("run_timestamp")
+        )
+        .withColumn(
+            "hour",
+            hour("run_timestamp")
         )
     )
 
@@ -147,11 +157,12 @@ def main():
     (
     df.coalesce(1)
     .write
-    .mode("overwrite")
+    .mode("append")
     .partitionBy(
         "year",
         "month",
-        "day"
+        "day",
+        "hour"
     )
     .parquet(
         "s3a://om-crypto-intelligence-dev/silver/data/"
