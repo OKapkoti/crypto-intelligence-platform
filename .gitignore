@@ -1,4 +1,16 @@
+# Virtual environment
 venv/
-.env
+
+# Python
 __pycache__/
 *.pyc
+
+# AWS
+.aws/
+
+# IDE
+.vscode/
+.idea/
+
+# Spark output
+silver_output/

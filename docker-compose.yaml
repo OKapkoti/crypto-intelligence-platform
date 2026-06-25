@@ -2,6 +2,7 @@ services:
 
   postgres:
     image: postgres:13
+
     environment:
       POSTGRES_USER: airflow
       POSTGRES_PASSWORD: airflow
@@ -31,9 +32,10 @@ services:
 
     volumes:
       - ./airflow/dags:/opt/airflow/dags
+      - ./src:/opt/airflow/src
+      - C:/Users/omkap/.aws:/home/airflow/.aws:ro
 
   airflow-webserver:
-
     image: apache/airflow:2.9.3
 
     depends_on:
@@ -50,9 +52,10 @@ services:
 
     volumes:
       - ./airflow/dags:/opt/airflow/dags
+      - ./src:/opt/airflow/src
+      - C:/Users/omkap/.aws:/home/airflow/.aws:ro
 
   airflow-scheduler:
-
     image: apache/airflow:2.9.3
 
     depends_on:
@@ -66,3 +69,6 @@ services:
 
     volumes:
       - ./airflow/dags:/opt/airflow/dags
+      - ./src:/opt/airflow/src
+      - C:/Users/omkap/.aws:/home/airflow/.aws:ro
+

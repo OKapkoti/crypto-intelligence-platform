@@ -61,13 +61,15 @@ def upload_to_s3(records):
 
     now = datetime.utcnow()
 
+    file_name = now.strftime("crypto_%Y%m%d_%H%M%S.json")
+
     key = (
         f"bronze/"
         f"year={now.year}/"
         f"month={now.month:02d}/"
         f"day={now.day:02d}/"
         f"hour={now.hour:02d}/"
-        f"crypto_data.json"
+        f"{file_name}"
     )
 
     s3.put_object(
