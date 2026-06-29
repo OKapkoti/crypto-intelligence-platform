@@ -31,6 +31,7 @@ services:
 
     environment:
       AWS_PROFILE: crypto-project
+      
 
   airflow-init:
 
@@ -46,6 +47,7 @@ services:
     environment:
       AIRFLOW__DATABASE__SQL_ALCHEMY_CONN: postgresql+psycopg2://airflow:airflow@postgres/airflow
       AIRFLOW__CORE__EXECUTOR: LocalExecutor
+      AIRFLOW__CORE__EXECUTE_TASKS_NEW_PYTHON_INTERPRETER: "True"
 
     command: >
       bash -c "
@@ -64,6 +66,7 @@ services:
       - ./src:/opt/airflow/src
       - C:/Users/omkap/.aws:/home/airflow/.aws:ro
       - /var/run/docker.sock:/var/run/docker.sock
+      - ./airflow/logs:/opt/airflow/logs
 
   airflow-webserver:
 
@@ -83,6 +86,7 @@ services:
     environment:
       AIRFLOW__DATABASE__SQL_ALCHEMY_CONN: postgresql+psycopg2://airflow:airflow@postgres/airflow
       AIRFLOW__CORE__EXECUTOR: LocalExecutor
+      AIRFLOW__CORE__EXECUTE_TASKS_NEW_PYTHON_INTERPRETER: "True"
 
     command: webserver
 
@@ -91,6 +95,7 @@ services:
       - ./src:/opt/airflow/src
       - C:/Users/omkap/.aws:/home/airflow/.aws:ro
       - /var/run/docker.sock:/var/run/docker.sock
+      - ./airflow/logs:/opt/airflow/logs
 
   airflow-scheduler:
 
@@ -106,6 +111,7 @@ services:
     environment:
       AIRFLOW__DATABASE__SQL_ALCHEMY_CONN: postgresql+psycopg2://airflow:airflow@postgres/airflow
       AIRFLOW__CORE__EXECUTOR: LocalExecutor
+      AIRFLOW__CORE__EXECUTE_TASKS_NEW_PYTHON_INTERPRETER: "True"
 
     command: scheduler
 
@@ -114,6 +120,7 @@ services:
       - ./src:/opt/airflow/src
       - C:/Users/omkap/.aws:/home/airflow/.aws:ro
       - /var/run/docker.sock:/var/run/docker.sock
+      - ./airflow/logs:/opt/airflow/logs
 
 volumes:
   postgres-db-volume:

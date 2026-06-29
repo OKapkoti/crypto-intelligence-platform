@@ -93,7 +93,13 @@ def main():
 
     duplicate_count = (
 
-        df.groupBy("coin")
+        df.groupBy(
+            "coin",
+            "year",
+            "month",
+            "day",
+            "hour"
+        )
 
         .count()
 
@@ -102,6 +108,18 @@ def main():
         .count()
 
     )
+
+    print("\nDuplicate Records:\n")
+
+    df.groupBy(
+        "coin",
+        "year",
+        "month",
+        "day",
+        "hour"
+    ).count().filter(
+        col("count") > 1
+    ).show(100, False)
 
     fail_if(
         duplicate_count > 0,

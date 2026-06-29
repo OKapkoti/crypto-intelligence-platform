@@ -8,6 +8,7 @@ from pyspark.sql.functions import (
     max as spark_max,
     current_date,
     hour,
+    to_date,
     current_timestamp
 )
 
@@ -99,11 +100,11 @@ def main():
         silver_df
         .withColumn(
             "snapshot_date",
-            current_date()
+            to_date("timestamp")
         )
         .withColumn(
             "snapshot_hour",
-            hour(current_timestamp())
+            hour("timestamp")
         )
     )
 
@@ -216,7 +217,7 @@ def main():
                 "average_price"
             ),
 
-            spark_max("event_timestamp").alias(
+            spark_max("timestamp").alias(
                 "snapshot_time"
             )
 
@@ -227,11 +228,11 @@ def main():
         market_summary
         .withColumn(
             "snapshot_date",
-            current_date()
+            to_date("snapshot_time")
         )
         .withColumn(
             "snapshot_hour",
-            hour(current_timestamp())
+            hour("snapshot_time")
         )
     )
 
@@ -243,7 +244,31 @@ def main():
         market_summary,
         f"s3a://{BUCKET_NAME}/gold/market_summary/"
     )
+    ##################################################
+    # COIN HISTORY
+    ##################################################
 
+    coin_history = (
+        silver_df.select(
+            "timestamp",
+            "coin",
+            "price_usd",
+            "market_cap",
+            "volume_24h",
+            "change_24h",
+            "snapshot_date",
+            "snapshot_hour"
+        )
+    )
+
+    print("\nCoin History\n")
+
+    coin_history.show(truncate=False)
+
+    write_dataset(
+        coin_history,
+        f"s3a://{BUCKET_NAME}/gold/coin_history/"
+    )
     print("\nGold Layer Created Successfully!")
 
     spark.stop()

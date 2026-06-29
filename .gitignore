@@ -14,3 +14,14 @@ __pycache__/
 
 # Spark output
 silver_output/
+
+# Airflow
+airflow/logs/
+
+# Environment
+.env
+.env.*
+
+# Operating System
+.DS_Store
+Thumbs.db

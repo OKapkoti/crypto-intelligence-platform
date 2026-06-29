@@ -14,7 +14,7 @@ with DAG(
     dag_id="crypto_pipeline",
     default_args=default_args,
     start_date=datetime(2026, 6, 25),
-    schedule=None,
+    schedule="@hourly",
     catchup=False,
     tags=["crypto", "data-engineering"],
 ) as dag:

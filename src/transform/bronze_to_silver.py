@@ -1,4 +1,7 @@
+import boto3
+from botocore.exceptions import ClientError
 from pyspark.sql import SparkSession
+
 from pyspark.sql.functions import (
     col,
     to_timestamp,
@@ -43,6 +46,7 @@ def create_spark():
             "spark.hadoop.fs.s3a.path.style.access",
             "true"
         )
+
 
         .getOrCreate()
     )
@@ -96,6 +100,36 @@ def download_file(key):
 
     return local_file
 
+def partition_exists(timestamp):
+
+    session = boto3.Session(
+        profile_name=PROFILE_NAME
+    )
+
+    s3 = session.client("s3")
+
+    prefix = (
+        f"silver/data/"
+        f"year={timestamp.year}/"
+        f"month={timestamp.month}/"
+        f"day={timestamp.day}/"
+        f"hour={timestamp.hour}/"
+    )
+
+    response = s3.list_objects_v2(
+        Bucket=BUCKET_NAME,
+        Prefix=prefix
+    )
+
+    if "Contents" not in response:
+        return False
+
+    for obj in response["Contents"]:
+
+        if obj["Key"].endswith(".parquet"):
+            return True
+
+    return False
 
 def main():
 
@@ -122,53 +156,63 @@ def main():
     df = (
         df
         .withColumn(
-            "event_timestamp",
+            "timestamp",
             to_timestamp("timestamp")
         )
         .withColumn(
-            "run_timestamp",
-            current_timestamp()
-        )
-        .withColumn(
             "year",
-            year("run_timestamp")
+            year("timestamp")
         )
         .withColumn(
             "month",
-            month("run_timestamp")
+            month("timestamp")
         )
         .withColumn(
             "day",
-            dayofmonth("run_timestamp")
+            dayofmonth("timestamp")
         )
         .withColumn(
             "hour",
-            hour("run_timestamp")
+            hour("timestamp")
         )
     )
 
     print("\nTransformed Data:")
     df.show(truncate=False)
 
+    from pyspark import StorageLevel
+
+    df.persist(StorageLevel.MEMORY_AND_DISK)
+
+    df.count()
+
     output_dir = "s3a://om-crypto-intelligence-dev/silver/data/"
+    current_snapshot = df.select("timestamp").first()["timestamp"]
+
+    print(f"\nCurrent Snapshot: {current_snapshot}")
 
     print("\nTesting Spark S3 write...")
 
-    (
-    df.coalesce(1)
-    .write
-    .mode("append")
-    .partitionBy(
-        "year",
-        "month",
-        "day",
-        "hour"
-    )
-    .parquet(
-        "s3a://om-crypto-intelligence-dev/silver/data/"
-    )
-)
-    print("\nSpark S3 write successful")
+    if partition_exists(current_snapshot):
+
+        print("\n✅ Snapshot already processed. Skipping write.\n")
+
+    else:
+
+        (
+            df.coalesce(1)
+            .write
+            .mode("append")
+            .partitionBy(
+                "year",
+                "month",
+                "day",
+                "hour"
+            )
+            .parquet(output_dir)
+        )
+
+        print("\n✅ Spark S3 write successful")
 
     spark.stop()
 
