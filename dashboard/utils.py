@@ -5,9 +5,22 @@ import s3fs
 
 BUCKET = "om-crypto-intelligence-dev"
 
-fs = s3fs.S3FileSystem(
-    profile="crypto-project"
-)
+# Local development (AWS CLI profile)
+if not hasattr(st, "secrets") or "AWS_ACCESS_KEY_ID" not in st.secrets:
+    fs = s3fs.S3FileSystem(
+        profile="crypto-project"
+    )
+
+# Streamlit Cloud deployment
+else:
+    fs = s3fs.S3FileSystem(
+        key=st.secrets["AWS_ACCESS_KEY_ID"],
+        secret=st.secrets["AWS_SECRET_ACCESS_KEY"],
+        client_kwargs={
+            "region_name": st.secrets["AWS_DEFAULT_REGION"]
+        }
+    )
+
 
 @st.cache_data
 def load_parquet(path):
@@ -20,12 +33,15 @@ def load_parquet(path):
     )
 
     return dataset.to_table().to_pandas()
+
+
 @st.cache_data
 def load_coin_history():
 
     return load_parquet(
         "gold/coin_history/"
     )
+
 
 @st.cache_data
 def load_market_summary():
@@ -65,6 +81,7 @@ def load_highest_volume():
     return load_parquet(
         "gold/highest_volume/"
     )
+
 
 def format_number(num):
 
