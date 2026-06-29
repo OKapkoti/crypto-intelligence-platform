@@ -4,6 +4,7 @@
 
 <h1 align="center">CryptoPulse</h1>
 
+
 <p align="center">
   <b>Cloud-Native Cryptocurrency Analytics Platform</b>
 </p>
@@ -19,6 +20,12 @@
 
 </p>
 
+<p align="center">
+
+[![Live Demo](https://img.shields.io/badge/🚀_Live_Demo-CryptoPulse-success?style=for-the-badge)](https://cryptopulse-by-om.streamlit.app)
+
+</p>
+
 ---
 
 # 🚀 Overview
@@ -28,6 +35,11 @@ CryptoPulse is a production-inspired cloud-native Data Engineering platform that
 The project demonstrates an end-to-end data engineering workflow including orchestration, distributed processing, cloud storage, metadata cataloging, SQL analytics, and business intelligence visualization.
 
 ---
+
+## 🔗 Project Links
+
+- 🌐 **Live Dashboard:** https://cryptopulse-by-om.streamlit.app
+- 💻 **GitHub Repository:** https://github.com/OKapkoti/crypto-intelligence-platform
 
 # ✨ Key Features
 
@@ -44,6 +56,16 @@ The project demonstrates an end-to-end data engineering workflow including orche
 * Modular and production-inspired architecture
 
 ---
+
+## 🏆 Project Highlights
+
+- Built a complete cloud-native cryptocurrency analytics platform from scratch.
+- Automated hourly ETL pipeline using Apache Airflow.
+- Processed and transformed data using Apache Spark with a Bronze → Silver → Gold architecture.
+- Stored analytics-ready datasets in Amazon S3 as partitioned Parquet files.
+- Enabled serverless SQL analytics with AWS Glue and Amazon Athena.
+- Developed a multi-page Streamlit dashboard for interactive cryptocurrency analysis.
+- Containerized the complete solution using Docker.
 
 # 🛠️ Tech Stack
 
@@ -211,18 +233,6 @@ docker compose up -d
 
 streamlit run dashboard/app.py
 ```
-
----
-
-# 🔮 Future Improvements
-
-* Real-time streaming using Apache Kafka
-* Managed Apache Airflow (Amazon MWAA)
-* Kubernetes deployment
-* CI/CD using GitHub Actions
-* Automated anomaly detection
-* Pipeline monitoring & alerting
-* Multi-cloud deployment
 
 ---
 
